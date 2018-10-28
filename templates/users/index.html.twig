@@ -9,7 +9,7 @@
                 {#<a href="{{ path('blog_post', {slug: post.slug}) }}">
                     {{ post.title }}
                 </a>#}
-                <a href="{{ path('blog_post', {slug: post.id}) }}">
+                <a href="{{ path('blog_users_single', {slug: post.id}) }}">
                     {#{{ post.title }}#}
                 </a>
             </h2>
@@ -18,7 +18,7 @@
                 {#<span class="metadata"><i class="fa fa-calendar"></i> {{ post.publishedAt|localizeddate('long', 'medium', null, 'UTC') }}</span>
                 <span class="metadata"><i class="fa fa-user"></i> {{ post.author.fullName }}</span>#}
 
-                <span class="metadata"><i class="fa fa-user"></i> {{ post.email }}</span>
+                <span class="metadata"><i class="fa fa-user"></i> {{ post.title }}</span>
             </p>
 
             {{ post.body|md2html }}
@@ -26,7 +26,7 @@
          {#   {{ include('blog/_post_tags.html.twig') }}#}
         </article>
     {% else %}
-        <div class="well">{{ 'post.no_posts_found'|trans }}</div>
+        <div class="well">{{ 'users.no_posts_found'|trans }}</div>
     {% endfor %}
 
     {#{% if posts.haveToPaginate %}
@@ -40,5 +40,5 @@
     {{ parent() }}
 
     {{ show_source_code(_self) }}
-    {{ include('blog/_rss.html.twig') }}
+    {{ include('users/_rss.html.twig') }}
 {% endblock %}

@@ -53,12 +53,21 @@ class BlogController extends AbstractController
         if ($request->query->has('tag')) {
             $tag = $tags->findOneBy(['name' => $request->query->get('tag')]);
         }
-        $latestPosts = $posts->findLatest($page, $tag);
+
+
+        $data = array(
+            "postId" => 2
+        );
+
+       $latestPosts = $posts->findLatest($page, $tag);
+        $response =  $this->curl_connect("https://jsonplaceholder.typicode.com/posts/".$data["postId"]."/comments", "GET", $data);
+
+        $jsonPosts = json_decode($response);
 
         // Every template name also has two extensions that specify the format and
         // engine for that template.
         // See https://symfony.com/doc/current/templating.html#template-suffix
-        return $this->render('blog/index.'.$_format.'.twig', ['posts' => $latestPosts]);
+        return $this->render('blog/index.'.$_format.'.twig', ['posts' => $jsonPosts]);
     }
 
     /**
@@ -81,6 +90,30 @@ class BlogController extends AbstractController
         return $this->render('blog/post_show.html.twig', ['post' => $post]);
     }
 
+
+    function curl_connect($url, $request_type, $data = array())
+    {
+        if ($request_type == 'GET')
+            $url .= '?' . http_build_query($data);
+
+        $mch = curl_init();
+        $headers = array(
+            'Content-Type: application/json'
+        );
+        curl_setopt($mch, CURLOPT_URL, $url);
+        curl_setopt($mch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($mch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($mch, CURLOPT_CUSTOMREQUEST, $request_type);
+        curl_setopt($mch, CURLOPT_TIMEOUT, 100);
+        curl_setopt($mch, CURLOPT_SSL_VERIFYPEER, false);
+
+        if ($request_type != 'GET') {
+            curl_setopt($mch, CURLOPT_POST, true);
+            curl_setopt($mch, CURLOPT_POSTFIELDS, json_encode($data));
+        }
+
+        return curl_exec($mch);
+    }
     /**
      * @Route("/comment/{postSlug}/new", methods={"POST"}, name="comment_new")
      * @IsGranted("IS_AUTHENTICATED_FULLY")
